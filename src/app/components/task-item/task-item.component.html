@@ -1,0 +1,12 @@
+<div class="task">
+  <h3>
+    {{ task.text }}
+    <i
+      (click)="onDelete(task)"
+      class="fa-solid fa-xmark"
+      style="color: red"
+    ></i>
+  </h3>
+  <p>{{ task.day }}</p>
+</div>
+<br />
