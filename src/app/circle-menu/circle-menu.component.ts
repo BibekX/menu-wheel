@@ -1,11 +1,26 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import * as _ from 'lodash';
 import { gsap } from 'gsap';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-circle-menu',
   templateUrl: './circle-menu.component.html',
   styleUrls: ['./circle-menu.component.css'],
+  animations: [
+    trigger('fadeIn', [
+      transition('void => *', [
+        style({ opacity: 0 }),
+        animate(300, style({ opacity: 1 })),
+      ]),
+    ]),
+    trigger('fadeOut', [
+      transition('void => *', [
+        style({ opacity: 1 }),
+        animate(300, style({ opacity: 0 })),
+      ]),
+    ]),
+  ],
 })
 export class CircleMenuComponent implements AfterViewInit {
   data = [
@@ -30,6 +45,7 @@ export class CircleMenuComponent implements AfterViewInit {
   animate = false;
   lastItemInTop = 0;
   lastItemInBottom = 0;
+  show = true;
 
   @ViewChild('cm_items') cm_items!: ElementRef;
   constructor() {}
@@ -58,7 +74,6 @@ export class CircleMenuComponent implements AfterViewInit {
         positiveSteps.push({ left: steps2[x].left, top: steps2[x].top * -1 });
       }
     });
-
     if (positiveSteps.length > 0) {
       this.lastItemInTop = steps2.length - 1;
       this.lastItemInBottom = steps2.length;
@@ -67,27 +82,8 @@ export class CircleMenuComponent implements AfterViewInit {
     }
 
     const offset = _.findIndex(this.data, [this.opt.key, this.selectedByKey]);
-    // console.log('cm_items', this.cm_items.nativeElement);
-    // this.data.forEach((d, i) => {
-    // this.items.push(cm_items.querySelector(`#item-${i}`));
-    // });
 
     this.select(offset, { init: true });
-
-    this.items.forEach((d, i) => {
-      // d.querySelector('a').addEventListener(
-      //   'click',
-      //   (event: {
-      //     preventDefault: () => void;
-      //     target: { getAttribute: (arg0: string) => any };
-      //   }) => {
-      //     event.preventDefault();
-      //     const url = event.target.getAttribute('href');
-      // const offset = _.findIndex(this.data, [this.opt.key, url]);
-      // this.select(offset, { goto: true });
-      //   }
-      // );
-    });
   }
 
   itemClick(event: any) {
@@ -102,7 +98,6 @@ export class CircleMenuComponent implements AfterViewInit {
 
   select(offset: number, selectOpt: any) {
     const max_dat = this.data.length;
-    // const cm_label = this.target.querySelector('.cm-selected-label');
 
     if (offset >= 0) {
       if (!this.animate) {
@@ -118,8 +113,7 @@ export class CircleMenuComponent implements AfterViewInit {
           lastItem_bot = null;
 
         const completeAnimation = (i: string | number) => {
-          // cm_label.querySelector('span').textContent = this.data[offset].label;
-          // cm_label.querySelector('span').style.display = 'block';
+          this.show = true;
           console.log('newPos', newPos);
           this.lastPos[i as number] = {
             left: newPos[i as number].left,
@@ -128,11 +122,9 @@ export class CircleMenuComponent implements AfterViewInit {
 
           this.animate = false;
         };
-
-        // cm_label.querySelector('span').style.display = 'none';
+        // this.show = false;
         this.items.forEach((d: any, i) => {
-          // d.style.display = 'block';
-          // d.classList.remove('selected');
+          console.log('d', d);
 
           const pos_id = (i - offset + max_dat) % max_dat;
           console.log('id', pos_id);
@@ -200,7 +192,6 @@ export class CircleMenuComponent implements AfterViewInit {
     lastItem_bot?: number | null | undefined
   ) {
     this.items.forEach((d: any, i) => {
-      console.log('d', d);
       if (i == lastItem && selectOpt && selectOpt.next == true) {
         d.style.display = 'none';
         gsap.fromTo(d, 1, this.lastPos[i], newPos[i]);

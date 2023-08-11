@@ -7,7 +7,7 @@
         </ul>
         <div class="cm-selected-container">
             <div class="cm-selected-label">
-                <span>{{data[currentSelected].label}}</span>
+                <span *ngIf="show" @fadeIn @fadeOut>{{data[currentSelected].label}}</span>
             </div>
             <a class="cm-button cm-button-prev" type="button" title="Previous" (click)="prev()"><i
                     class="fa fa-chevron-left"></i></a>
