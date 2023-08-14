@@ -24,11 +24,11 @@ import { trigger, style, animate, transition } from '@angular/animations';
 })
 export class CircleMenuComponent implements AfterViewInit {
   data = [
-    { label: 'Menu 1', url: 'menu-1' },
-    { label: 'Menu 2', url: 'menu-2' },
-    { label: 'Menu 3', url: 'menu-3' },
-    { label: 'Menu 4', url: 'menu-4' },
-    { label: 'Menu 5', url: 'menu-5' },
+    { label: 'Menu 1', url: 'menu-1', selected: false, display: 'block' },
+    { label: 'Menu 2', url: 'menu-2', selected: false, display: 'block' },
+    { label: 'Menu 3', url: 'menu-3', selected: false, display: 'block' },
+    { label: 'Menu 4', url: 'menu-4', selected: false, display: 'block' },
+    { label: 'Menu 5', url: 'menu-5', selected: false, display: 'block' },
   ];
   selectedByKey = 'menu-1';
   opt = {
@@ -45,7 +45,9 @@ export class CircleMenuComponent implements AfterViewInit {
   animate = false;
   lastItemInTop = 0;
   lastItemInBottom = 0;
-  show = true;
+  display = 'block';
+  cm_element: any;
+  child: any;
 
   @ViewChild('cm_items') cm_items!: ElementRef;
   constructor() {}
@@ -56,8 +58,10 @@ export class CircleMenuComponent implements AfterViewInit {
       positiveSteps: any[] = [];
     const widePerItem = 30;
 
-    const max_dat = this.data.length;
+    this.cm_element = this.cm_items.nativeElement;
+    this.child = this.cm_element.children;
 
+    const max_dat = this.data.length;
     this.data.forEach((d, i) => {
       let posX = 0,
         posY = 0;
@@ -86,14 +90,9 @@ export class CircleMenuComponent implements AfterViewInit {
     this.select(offset, { init: true });
   }
 
-  itemClick(event: any) {
-    console.log('event', event.target.value);
-    // const offset = _.findIndex(this.data, [this.opt.key, url]);
-    // this.select(offset, { goto: true });
-
-    // const url = event.target.getAttribute('href');
-    // const offset = _.findIndex(this.data, [this.opt.key, url]);
-    // this.select(offset, { goto: true });
+  itemClick(id: number) {
+    this.data[id].display = 'block';
+    this.select(id, { next: true });
   }
 
   select(offset: number, selectOpt: any) {
@@ -113,8 +112,6 @@ export class CircleMenuComponent implements AfterViewInit {
           lastItem_bot = null;
 
         const completeAnimation = (i: string | number) => {
-          this.show = true;
-          console.log('newPos', newPos);
           this.lastPos[i as number] = {
             left: newPos[i as number].left,
             top: newPos[i as number].top,
@@ -122,12 +119,8 @@ export class CircleMenuComponent implements AfterViewInit {
 
           this.animate = false;
         };
-        // this.show = false;
-        this.items.forEach((d: any, i) => {
-          console.log('d', d);
-
+        this.data.forEach((d: any, i) => {
           const pos_id = (i - offset + max_dat) % max_dat;
-          console.log('id', pos_id);
           if (pos_id == this.lastItemInTop) {
             lastItem = i;
           }
@@ -151,23 +144,21 @@ export class CircleMenuComponent implements AfterViewInit {
           });
 
           if (offset == i) {
-            d.style.display = 'none';
-            d.classList.add('selected');
+            this.data[i].display = 'none';
+            this.data[i].selected = true;
           }
         });
 
         if (selectOpt && selectOpt.goto) {
-          this.items.forEach((d: any, i) => {
-            d.style.display = 'none';
+          this.data.forEach((d: any, i) => {
+            d.display = 'none';
           });
 
           this.animateList(newPos);
 
           setTimeout(() => {
-            this.items.forEach((d: any, i) => {
-              !d.classList.contains('selected')
-                ? (d.style.display = 'block')
-                : null;
+            this.data.forEach((d: any, i) => {
+              !d.classList.contains('selected') ? (d.display = 'block') : null;
             });
           }, 1000);
         } else {
@@ -191,23 +182,38 @@ export class CircleMenuComponent implements AfterViewInit {
     lastItem?: number | null | undefined,
     lastItem_bot?: number | null | undefined
   ) {
-    this.items.forEach((d: any, i) => {
+    this.data.forEach((d: any, i) => {
       if (i == lastItem && selectOpt && selectOpt.next == true) {
-        d.style.display = 'none';
-        gsap.fromTo(d, 1, this.lastPos[i], newPos[i]);
+        this.data[i].display = 'none';
+
+        gsap.fromTo(
+          this.child[i],
+          { duration: 1, ...this.lastPos[i] },
+          newPos[i]
+        );
 
         setTimeout(() => {
-          d.style.display = 'block';
-        }, 800);
+          this.data[i].display = 'block';
+        }, 100);
       } else if (i == lastItem_bot && selectOpt && selectOpt.prev == true) {
-        d.style.display = 'none';
-        gsap.fromTo(d, 1, this.lastPos[i], newPos[i]);
+        this.data[i].display = 'none';
+        gsap.fromTo(
+          this.child[i],
+          { duration: 1, ...this.lastPos[i] },
+          newPos[i]
+        );
 
         setTimeout(() => {
-          d.style.display = 'block';
-        }, 800);
+          this.data[i].display = 'block';
+        }, 100);
       } else {
-        gsap.fromTo(d, 1, this.lastPos[i], newPos[i]);
+        if (newPos[i]) {
+          gsap.fromTo(
+            this.child[i],
+            { duration: 1, ...this.lastPos[i] },
+            newPos[i]
+          );
+        }
       }
     });
   }
@@ -216,7 +222,7 @@ export class CircleMenuComponent implements AfterViewInit {
     let offset = this.currentSelected;
     const min_offset = 0,
       max_offset = this.data.length - 1;
-
+    this.data[offset].display = 'block';
     offset = offset > min_offset ? offset - 1 : max_offset;
 
     this.select(offset, { prev: true });
@@ -226,7 +232,7 @@ export class CircleMenuComponent implements AfterViewInit {
     let offset = this.currentSelected;
     const min_offset = 0,
       max_offset = this.data.length - 1;
-
+    this.data[offset].display = 'block';
     offset = offset < max_offset ? offset + 1 : min_offset;
 
     this.select(offset, { next: true });

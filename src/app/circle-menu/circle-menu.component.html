@@ -1,13 +1,13 @@
 <div class="wrap">
     <div id="my-circle-menu" class="cm-container">
         <ul class="cm-items" #cm_items>
-            <li *ngFor="let d of data; let i = index" id="item-{{i}}" class="cm-item">
-                <a (click)="itemClick($event)" href="{{d.url}}" title="{{d.label}}">{{d.label}}</a>
+            <li *ngFor="let d of data; let i = index" id="item-{{i}}" class="cm-item" [ngStyle]="{'display':d.display}">
+                <a (click)="itemClick(i)" title="{{d.label}}">{{d.label}}</a>
             </li>
         </ul>
         <div class="cm-selected-container">
             <div class="cm-selected-label">
-                <span *ngIf="show" @fadeIn @fadeOut>{{data[currentSelected].label}}</span>
+                <span @fadeIn @fadeOut>{{data[currentSelected].label}}</span>
             </div>
             <a class="cm-button cm-button-prev" type="button" title="Previous" (click)="prev()"><i
                     class="fa fa-chevron-left"></i></a>

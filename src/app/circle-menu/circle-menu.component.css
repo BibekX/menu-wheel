@@ -43,6 +43,7 @@
     -o-transition: all 0.2s ease-out;
     transition: all 0.2s ease-out;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .cm-container .cm-items .cm-item a:hover {
