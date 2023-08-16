@@ -11,25 +11,60 @@ import { trigger, style, animate, transition } from '@angular/animations';
     trigger('fadeIn', [
       transition('void => *', [
         style({ opacity: 0 }),
-        animate(300, style({ opacity: 1 })),
+        animate(500, style({ opacity: 1 })),
       ]),
     ]),
     trigger('fadeOut', [
       transition('void => *', [
         style({ opacity: 1 }),
-        animate(300, style({ opacity: 0 })),
+        animate(500, style({ opacity: 0 })),
       ]),
     ]),
   ],
 })
 export class CircleMenuComponent implements AfterViewInit {
   data = [
-    { label: 'Menu 1', url: 'menu-1', selected: false, display: 'block' },
-    { label: 'Menu 2', url: 'menu-2', selected: false, display: 'block' },
-    { label: 'Menu 3', url: 'menu-3', selected: false, display: 'block' },
-    { label: 'Menu 4', url: 'menu-4', selected: false, display: 'block' },
-    { label: 'Menu 5', url: 'menu-5', selected: false, display: 'block' },
+    {
+      label: 'Website',
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, in? Eligendi cum earum maiores vel necessitatibus, voluptatibus nobis culpa dignissimos totam illo dolorem provident asperiores incidunt cumque beatae, rerum sit?',
+      url: 'menu-1',
+      selected: false,
+      display: 'block',
+      top: '30px',
+      right: '60px',
+    },
+    {
+      label: 'Table Ordering System',
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, in? Eligendi cum earum maiores vel necessitatibus, voluptatibus nobis culpa dignissimos totam illo dolorem provident asperiores incidunt cumque beatae, rerum sit?',
+      url: 'menu-2',
+      selected: false,
+      display: 'block',
+      top: '10px',
+      right: '90px',
+    },
+    {
+      label: 'Inventory System',
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, in? Eligendi cum earum maiores vel necessitatibus, voluptatibus nobis culpa dignissimos totam illo dolorem provident asperiores incidunt cumque beatae, rerum sit?',
+      url: 'menu-3',
+      selected: false,
+      display: 'block',
+      top: '30px',
+      right: '40px',
+    },
+    {
+      label: 'E-Commerce',
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, in? Eligendi cum earum maiores vel necessitatibus, voluptatibus nobis culpa dignissimos totam illo dolorem provident asperiores incidunt cumque beatae, rerum sit?',
+      url: 'menu-4',
+      selected: false,
+      display: 'block',
+      top: '-4px',
+      right: '150px',
+    },
   ];
+
+  menu_label: string = this.data[0].label;
+  menu_label_desc: string = this.data[0].desc;
+
   selectedByKey = 'menu-1';
   opt = {
     key: 'url',
@@ -45,7 +80,6 @@ export class CircleMenuComponent implements AfterViewInit {
   animate = false;
   lastItemInTop = 0;
   lastItemInBottom = 0;
-  display = 'block';
   cm_element: any;
   child: any;
 
@@ -56,7 +90,7 @@ export class CircleMenuComponent implements AfterViewInit {
     const theta: number[] = [],
       steps2: { left: number; top: number }[] = [],
       positiveSteps: any[] = [];
-    const widePerItem = 30;
+    const widePerItem = 85;
 
     this.cm_element = this.cm_items.nativeElement;
     this.child = this.cm_element.children;
@@ -91,8 +125,49 @@ export class CircleMenuComponent implements AfterViewInit {
   }
 
   itemClick(id: number) {
-    this.data[id].display = 'block';
-    this.select(id, { next: true });
+    this.select(id, { goto: true });
+  }
+
+  menuPositionHandler(offset: number) {
+    //offset
+    // web, table, inventory, ecom
+    if (offset === 0) {
+      this.data[1].top = '10px';
+      this.data[1].right = '90px';
+      this.data[2].top = '30px';
+      this.data[2].right = '40px';
+      this.data[3].top = '-4px';
+      this.data[3].right = '150px';
+      this.menu_label = this.data[0].label;
+      this.menu_label_desc = this.data[0].desc;
+    } else if (offset === 1) {
+      this.data[0].top = '-3px';
+      this.data[0].right = '100px';
+      this.data[2].top = '10px';
+      this.data[2].right = '110px';
+      this.data[3].top = '30px';
+      this.data[3].right = '60px';
+      this.menu_label = this.data[1].label;
+      this.menu_label_desc = this.data[1].desc;
+    } else if (offset === 2) {
+      this.data[0].top = '30px';
+      this.data[0].right = '30px';
+      this.data[1].top = '-30px';
+      this.data[1].right = '120px';
+      this.data[3].top = '30px';
+      this.data[3].right = '130px';
+      this.menu_label = this.data[2].label;
+      this.menu_label_desc = this.data[2].desc;
+    } else if (offset === 3) {
+      this.data[0].top = '30px';
+      this.data[0].right = '90px';
+      this.data[1].top = '30px';
+      this.data[1].right = '40px';
+      this.data[2].top = '-20px';
+      this.data[2].right = '100px';
+      this.menu_label = this.data[3].label;
+      this.menu_label_desc = this.data[3].desc;
+    }
   }
 
   select(offset: number, selectOpt: any) {
@@ -119,6 +194,9 @@ export class CircleMenuComponent implements AfterViewInit {
 
           this.animate = false;
         };
+
+        this.menuPositionHandler(offset);
+
         this.data.forEach((d: any, i) => {
           const pos_id = (i - offset + max_dat) % max_dat;
           if (pos_id == this.lastItemInTop) {
@@ -150,17 +228,16 @@ export class CircleMenuComponent implements AfterViewInit {
         });
 
         if (selectOpt && selectOpt.goto) {
+          this.data[this.currentSelected].selected = false;
           this.data.forEach((d: any, i) => {
-            d.display = 'none';
+            this.data[i].display = 'none';
           });
 
           this.animateList(newPos);
 
-          setTimeout(() => {
-            this.data.forEach((d: any, i) => {
-              !d.classList.contains('selected') ? (d.display = 'block') : null;
-            });
-          }, 1000);
+          this.data.forEach((d: any, i) => {
+            this.data[i].selected === false && (this.data[i].display = 'block');
+          });
         } else {
           if (selectOpt && selectOpt.init) {
             this.animateList(newPos);
@@ -171,8 +248,6 @@ export class CircleMenuComponent implements AfterViewInit {
 
         this.currentSelected = offset;
       }
-    } else {
-      // this.target.style.display = 'none';
     }
   }
 
@@ -188,30 +263,28 @@ export class CircleMenuComponent implements AfterViewInit {
 
         gsap.fromTo(
           this.child[i],
-          { duration: 1, ...this.lastPos[i] },
-          newPos[i]
+          { duration: 0, ...this.lastPos[i], opacity: 0 },
+          { duration: 1.2, ...newPos[i], opacity: 1 }
         );
-
         setTimeout(() => {
           this.data[i].display = 'block';
-        }, 100);
+        }, 1100);
       } else if (i == lastItem_bot && selectOpt && selectOpt.prev == true) {
         this.data[i].display = 'none';
         gsap.fromTo(
           this.child[i],
-          { duration: 1, ...this.lastPos[i] },
-          newPos[i]
+          { duration: 0, ...this.lastPos[i], opacity: 0 },
+          { duration: 1.2, ...newPos[i], opacity: 1 }
         );
-
         setTimeout(() => {
           this.data[i].display = 'block';
-        }, 100);
+        }, 1100);
       } else {
         if (newPos[i]) {
           gsap.fromTo(
             this.child[i],
-            { duration: 1, ...this.lastPos[i] },
-            newPos[i]
+            { duration: 0, ...this.lastPos[i], opacity: 0 },
+            { duration: 1.2, ...newPos[i], opacity: 1 }
           );
         }
       }
@@ -223,6 +296,7 @@ export class CircleMenuComponent implements AfterViewInit {
     const min_offset = 0,
       max_offset = this.data.length - 1;
     this.data[offset].display = 'block';
+    this.data[offset].selected = false;
     offset = offset > min_offset ? offset - 1 : max_offset;
 
     this.select(offset, { prev: true });
@@ -233,6 +307,7 @@ export class CircleMenuComponent implements AfterViewInit {
     const min_offset = 0,
       max_offset = this.data.length - 1;
     this.data[offset].display = 'block';
+    this.data[offset].selected = false;
     offset = offset < max_offset ? offset + 1 : min_offset;
 
     this.select(offset, { next: true });
